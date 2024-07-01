@@ -1,32 +1,43 @@
 import cv2
+import requests
+from PIL import Image
+from transformers import BlipProcessor, BlipForConditionalGeneration
 
-def core():
-    #Access Video
-    #Sprint 1: laptop webcam
-    webCam()
+def takePic():
+    #Use web cam to capture image
+    img = webCam()
+    
+    #Use USB C camera on laptop to capture image
+    #img = pcCameraUSB()
+    return img
 
 def webCam():
-    # define a video capture object 
-    vid = cv2.VideoCapture(0) 
-      
-    while(True): 
-          
-        # Capture the video frame 
-        # by frame 
-        ret, frame = vid.read() 
-      
-        # Display the resulting frame 
-        cv2.imshow('frame', frame) 
-          
-        # the 'q' button is set as the 
-        # quitting button you may use any 
-        # desired button of your choice 
-        if cv2.waitKey(1) & 0xFF == ord('q'): 
-            break
-      
-    # After the loop release the cap object 
-    vid.release() 
-    # Destroy all the windows 
-    cv2.destroyAllWindows() 
+    #Take picture of whatever the webcam sees
+    cap = cv2.VideoCapture(0) # video capture source camera (Here webcam of laptop) 
+    ret, frame = cap.read() # return a single frame in variable `frame`
+    cap.release()
+    return frame
 
-core()
+def runModel():
+    processor = BlipProcessor.from_pretrained("Salesforce/blip-image-captioning-base")
+    model = BlipForConditionalGeneration.from_pretrained("Salesforce/blip-image-captioning-base")
+    raw_image = Image.fromarray(takePic()).convert('RGB')
+    #img_url = 'https://storage.googleapis.com/sfr-vision-language-research/BLIP/demo.jpg' 
+    #img_url = 'https://upload.wikimedia.org/wikipedia/commons/d/d8/Friedrich-Johann-Justin-Bertuch_Mythical-Creature-Dragon_1806.jpg'
+    #raw_image = Image.open(requests.get(img_url, stream=True).raw).convert('RGB')
+    #raw_image = URLImageInput(img_url)
+    ## conditional image captioning
+    #text = "a photography of"
+    #inputs = processor(raw_image, text, return_tensors="pt")
+
+    #out = model.generate(**inputs)
+    #print(processor.decode(out[0], skip_special_tokens=True))
+    # >>> a photography of a woman and her dog
+
+    # unconditional image captioning
+    inputs = processor(raw_image, return_tensors="pt")
+
+    out = model.generate(**inputs)
+    print(processor.decode(out[0], skip_special_tokens=True))
+
+runModel()
