@@ -8,4 +8,6 @@ cd my-camera-app-vite\src
 npm run dev
 
 # In powershell python venv run API
-fastapi run apirework.py
+fastapi dev apiRework.py
+
+# Disable ad blocker in browser

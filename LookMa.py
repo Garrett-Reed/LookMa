@@ -18,16 +18,26 @@ def webCam():
     cap.release()
     return frame
 
+def pcCameraUSB():
+    pass
+    
+def rawImage():
+    #get from VITE image button thingy
+    #pass as parameter to runModel()
+    #may not need and just get the image from FAST API
+    pass
+  
 def runModel():
     processor = BlipProcessor.from_pretrained("Salesforce/blip-image-captioning-base")
     model = BlipForConditionalGeneration.from_pretrained("Salesforce/blip-image-captioning-base")
+    #raw_image = from parameter
     raw_image = Image.fromarray(takePic()).convert('RGB')
     #img_url = 'https://storage.googleapis.com/sfr-vision-language-research/BLIP/demo.jpg' 
     #img_url = 'https://upload.wikimedia.org/wikipedia/commons/d/d8/Friedrich-Johann-Justin-Bertuch_Mythical-Creature-Dragon_1806.jpg'
     #raw_image = Image.open(requests.get(img_url, stream=True).raw).convert('RGB')
     #raw_image = URLImageInput(img_url)
     ## conditional image captioning
-    #text = "a photography of"
+    #text = "A victorian painting of"
     #inputs = processor(raw_image, text, return_tensors="pt")
 
     #out = model.generate(**inputs)

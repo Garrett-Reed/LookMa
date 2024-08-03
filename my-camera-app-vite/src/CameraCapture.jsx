@@ -1,79 +1,55 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 
-function CameraCapture() {
-  const [imageData, setImageData] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const videoRef = useRef(null);
+function FastAPICall() {
+    const [response, setResponse] = useState(null);
+    const [name, setName] = useState("");
+    const [description, setDescription] = useState("");
 
-  useEffect(() => {
-    getVideo();
-  }, []);
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+        const data = { name, description };
 
-  const getVideo = async () => {
-    try {
-      const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
-      videoRef.current.srcObject = mediaStream;
-    } catch (error) {
-      setError('Error accessing camera: ' + error.message);
-    }
-  };
+        try {
+            const res = await fetch('http://127.0.0.1:8000/items/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            });
+            const result = await res.json();
+            setResponse(result);
+        } catch (error) {
+            console.error("Error:", error);
+        }
+    };
 
-  const captureImage = () => {
-    const canvas = document.createElement('canvas');
-    canvas.width = videoRef.current.videoWidth;
-    canvas.height = videoRef.current.videoHeight;
-    canvas.getContext('2d').drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
-
-    canvas.toBlob(blob => {
-      setImageData(blob);
-      sendImageToServer(blob);
-    }, 'image/jpeg', 0.95);
-  };
-
-  const sendImageToServer = async (blob) => {
-    setIsLoading(true);
-    setError(null); // Clear previous errors
-
-    const formData = new FormData();
-    formData.append('imgFile', 'captured_image.jpg');
-
-    try {
-      const response = await fetch('http://localhost:8000/uploadfile', {  // Updated endpoint
-        method: 'POST',
-        body: formData
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log('Image uploaded successfully!', data);
-      } else {
-        setError('Image upload failed: ' + response.statusText);
-      }
-    } catch (error) {
-      setError('Network error: ' + error.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  return (
-    <div>
-      <video ref={videoRef} autoPlay style={{ width: '400px' }} />
-      <button onClick={captureImage} disabled={isLoading}>
-        {isLoading ? 'Capturing...' : 'Capture'}
-      </button>
-
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-
-      {imageData && (
+    return (
         <div>
-          <h2>Captured Image:</h2>
-          <img src={URL.createObjectURL(imageData)} alt="Captured" />
+            <form onSubmit={handleSubmit}>
+                <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Name"
+                />
+                <input
+                    type="text"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    placeholder="Description"
+                />
+                <button type="submit">Submit</button>
+            </form>
+            {response && (
+                <div>
+                    <h3>Modified Text:</h3>
+                    <p>Modified Name: {response.modified_name}</p>
+                    <p>Modified Description: {response.modified_description}</p>
+                </div>
+            )}
         </div>
-      )}
-    </div>
-  );
+    );
 }
 
-export default CameraCapture;
+export default FastAPICall;
