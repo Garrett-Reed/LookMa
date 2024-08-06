@@ -6,7 +6,7 @@ import './index.css'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <div>Garrett!!!</div>
+    <div>Image Captioning</div>
     <CameraCapture />
   </React.StrictMode>,
 )
