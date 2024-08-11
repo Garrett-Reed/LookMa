@@ -27,11 +27,11 @@ def rawImage():
     #may not need and just get the image from FAST API
     pass
   
-def runModel():
+def runLocalModel(inputImage):
     processor = BlipProcessor.from_pretrained("Salesforce/blip-image-captioning-base")
     model = BlipForConditionalGeneration.from_pretrained("Salesforce/blip-image-captioning-base")
     #raw_image = from parameter
-    raw_image = Image.fromarray(takePic()).convert('RGB')
+    raw_image = Image.fromarray(inputImage).convert('RGB')
     #img_url = 'https://storage.googleapis.com/sfr-vision-language-research/BLIP/demo.jpg' 
     #img_url = 'https://upload.wikimedia.org/wikipedia/commons/d/d8/Friedrich-Johann-Justin-Bertuch_Mythical-Creature-Dragon_1806.jpg'
     #raw_image = Image.open(requests.get(img_url, stream=True).raw).convert('RGB')
@@ -46,8 +46,12 @@ def runModel():
 
     # unconditional image captioning
     inputs = processor(raw_image, return_tensors="pt")
-
     out = model.generate(**inputs)
-    print(processor.decode(out[0], skip_special_tokens=True))
+    outputText = (processor.decode(out[0], skip_special_tokens=True))
+    return outputText
 
-runModel()
+
+def runGoogleModelAPI(inputImage):
+    raw_image = inputImage
+    outputText = "Made it to Google?"
+    return outputText
